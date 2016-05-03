@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Self Destructing Notes{% endblock %}
+{% block head %}
+    <script type="application/javascript" src="{{ url_for('index') }}static/js/isaac.js"></script>
+    <script type="application/javascript" src="{{ url_for('index') }}static/js/keygen.js"></script>
+    <script type="application/javascript" src="{{ url_for('index') }}static/js/hashcash.js"></script>
+    <script type="application/javascript" src="{{ url_for('index') }}static/js/sha1-min.js"></script>
+    <script type="application/javascript" src="{{ url_for('index') }}static/js/fingerprint-min.js"></script>
+    <script type="application/javascript">var fingerprint = new Fingerprint().get();</script>
+{% endblock %}
+{% block content %}
+    <h1>Self destructing encrypted notes</h1>
+    <p>Securely send PINs, messages, passwords, or other sensitive or private information. All notes are encrypted, and destroyed immediately after viewing.</p>
+    <form method="POST" onsubmit="return validate_form()" action="{{ url_for('show_post', _external=True) }}">
+        {% if error %}
+            <p class="error">
+            {% if error == "hashcash" %}
+                HashCash token is invalid. Please make sure JavaScript is enabled and try again.
+            {% endif %}
+            </p>
+        {% endif %}
+        <input name="new_url" type="hidden" value="{{ random }}">
+        <p>Type or paste your text below:</p>
+        <textarea style="width:100%; height:250px" id="paste" name="paste"></textarea>
+        <br/>
+        <div class="blockfirst">
+            Enter optional passphrase / password:
+            <span class="tooltip">
+                <span class="trigger">?</span>
+                <span class="popup">This passphrase will encrypt and decrypt your note, rather than the one created by the server.</span>
+            </span>
+            <br/>
+            <input id="passphrase" type="text" name="pass" id="passphrase">
+            <input type="button" value="Generate One" onclick="document.getElementById('passphrase').value = make_key()">
+        </div>
+        <div class="blocklast">
+            <input type="hidden" id="hashcash" name="hashcash">
+            <div id="submitButnHolder">
+                <input type="submit" id="submit" value="Submit Note">
+            </div>
+            <span id="progress">(Please be patient)</span>
+            <span class="tooltip">
+                <span class="trigger">?</span>
+                <span class="popup">A puzzle is solved in your browser proving you are human. The puzzle should be solved in a few seconds at most depending on your hardware.</span>
+            </span>
+        </div>
+    </form>
+{% endblock %}
